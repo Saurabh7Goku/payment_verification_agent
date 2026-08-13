@@ -2,6 +2,67 @@
 
 A production-ready conversational AI agent for handling end-to-end payment collection workflows. Built with a hybrid architecture combining LLM-based natural language understanding with deterministic business logic for security-critical operations.
 
+## 🚀 Quick Start for Recruiters
+
+### Option A: Using OpenAI GPT Models (Recommended if you have OpenAI access)
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Configure environment
+cp .env.example .env
+
+# 3. Edit .env and add your OpenAI API key
+# LLM_PROVIDER=openai
+# OPENAI_API_KEY=sk-your-key-here
+# OPENAI_MODEL=gpt-4o-mini
+
+# 4. Run the agent
+python src/cli.py
+```
+
+### Option B: Using OpenRouter (Free - No Credit Card Required)
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Get a free API key from https://openrouter.ai/keys
+
+# 3. Configure environment
+cp .env.example .env
+
+# 4. Edit .env and add your OpenRouter API key
+# LLM_PROVIDER=openrouter
+# OPENROUTER_API_KEY=sk-or-v1-your-key-here
+# OPENROUTER_MODEL=poolside/laguna-xs-2.1:free
+
+# 5. Run the agent
+python src/cli.py
+```
+
+**Test with this conversation:**
+```
+You: Hi
+Agent: Hello! I'm here to help you with your payment. Please share your account ID to get started.
+
+You: ACC1001
+Agent: Could you please confirm your full name for verification?
+
+You: Nithin Jain
+Agent: For verification, could you please provide your date of birth...
+
+You: 1990-05-14
+Agent: Identity verified. Your outstanding balance is ₹1,250.75. How much would you like to pay today?
+
+You: 500
+Agent: Great! I'll process a payment of ₹500. Please provide your card details...
+
+You: Card: 4532015112830366, CVV: 123, Expiry: 12/2027, Name: Nithin Jain
+Agent: Payment successful! Your transaction ID is [txn_id]. Thank you for your payment!
+```
+
 ## Overview
 
 This agent conducts a structured payment collection conversation:
@@ -62,14 +123,16 @@ payment-agent/
 ### Prerequisites
 
 - Python 3.11 or higher
-- OpenRouter API key ([Get one here](https://openrouter.ai/keys))
+- API key for one of the following:
+  - **OpenRouter** ([Get one here](https://openrouter.ai/keys)) - Free
+  - **OpenAI**
 
 ### Installation
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd payment-agent
+git clone <https://github.com/Saurabh7Goku/payment_verification_agent>
+cd payment_verification_agent
 ```
 
 2. Install dependencies:
@@ -82,12 +145,52 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Edit `.env` and add your OpenRouter API key:
+Edit `.env` and configure your LLM provider:
+
+**Option A: Using OpenRouter (Free models available)**
+```env
+LLM_PROVIDER=openrouter
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENROUTER_MODEL=poolside/laguna-xs-2.1:free
 ```
-OPENROUTER_API_KEY=your_actual_api_key_here
+
+**Option B: Using OpenAI GPT models**
+```env
+LLM_PROVIDER=openai
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-4o-mini
 ```
 
 ## Usage
+
+### LLM Provider Configuration
+
+This agent supports two LLM providers:
+
+**OpenRouter** (Default)
+- Access to multiple open-source models
+- Free tier available
+- Models: `poolside/laguna-xs-2.1:free`, `nvidia/nemotron-3.5-lightning:free`, etc.
+- Get API key: https://openrouter.ai/keys
+
+**OpenAI**
+- Direct access to GPT models
+- Requires paid account
+- Models: `gpt-4o-mini`
+- Get API key: https://platform.openai.com/api-keys
+
+Configure via `.env` file:
+```env
+# For OpenRouter
+LLM_PROVIDER=openrouter
+OPENROUTER_API_KEY=sk-or-v1-xxx
+OPENROUTER_MODEL=poolside/laguna-xs-2.1:free
+
+# For OpenAI
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-xxx
+OPENAI_MODEL=gpt-4o-mini
+```
 
 ### Interactive CLI
 

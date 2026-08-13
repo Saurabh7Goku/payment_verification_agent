@@ -9,7 +9,17 @@ from .models import ExtractedInput
 
 
 class Extractor:
-    """Extracts structured information from user input using LLM."""
+    """Extracts structured information from user input using LLM.
+    
+    Supports multiple LLM providers:
+    - OpenRouter (default): Access to multiple open-source models
+    - OpenAI: Direct access to GPT models (gpt-4o, gpt-4o-mini, etc.)
+    
+    Configure via environment variables:
+    - LLM_PROVIDER: "openrouter" or "openai"
+    - For OpenRouter: OPENROUTER_API_KEY and OPENROUTER_MODEL
+    - For OpenAI: OPENAI_API_KEY and OPENAI_MODEL
+    """
     
     EXTRACTION_PROMPT = """You are a data extraction assistant for a payment collection system.
 
@@ -61,17 +71,69 @@ Return a JSON object with these fields (use null for absent fields):
 }"""
     
     def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None, model: Optional[str] = None):
-        self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
+        """
+        Initialize the Extractor with LLM client.
+        
+        Supports two modes:
+        1. Provider-based (recommended): Set LLM_PROVIDER env variable
+        2. Legacy: Provide api_key, base_url, model directly
+        
+        Args:
+            api_key: Optional API key (overrides env variables)
+            base_url: Optional base URL (overrides env variables)
+            model: Optional model name (overrides env variables)
+        """
+        # Determine provider and configuration
+        provider = os.getenv("LLM_PROVIDER", "openrouter").lower()
+        
+        # If explicit parameters provided, use legacy mode
+        if api_key or base_url or model:
+            self.provider = "custom"
+            self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
+            self.base_url = base_url or os.getenv("LLM_BASE_URL", "https://openrouter.ai/api/v1")
+            self.model = model or os.getenv("LLM_MODEL", "poolside/laguna-xs-2.1:free")
+        else:
+            # Use provider-based configuration
+            self.provider = provider
+            
+            if provider == "openai":
+                self.api_key = os.getenv("OPENAI_API_KEY")
+                if not self.api_key:
+                    raise ValueError(
+                        "OpenAI API key not found. Set OPENAI_API_KEY environment variable "
+                        "or switch to OpenRouter by setting LLM_PROVIDER=openrouter"
+                    )
+                self.base_url = None  # Use default OpenAI endpoint
+                self.model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+            
+            elif provider == "openrouter":
+                self.api_key = os.getenv("OPENROUTER_API_KEY")
+                if not self.api_key:
+                    raise ValueError(
+                        "OpenRouter API key not found. Set OPENROUTER_API_KEY environment variable "
+                        "or switch to OpenAI by setting LLM_PROVIDER=openai"
+                    )
+                self.base_url = "https://openrouter.ai/api/v1"
+                self.model = os.getenv("OPENROUTER_MODEL") or os.getenv("LLM_MODEL", "poolside/laguna-xs-2.1:free")
+            
+            else:
+                raise ValueError(
+                    f"Unknown LLM provider: {provider}. "
+                    f"Supported providers: 'openai', 'openrouter'"
+                )
+        
         if not self.api_key:
-            raise ValueError("OpenRouter API key not found. Set OPENROUTER_API_KEY environment variable.")
+            raise ValueError("API key is required but not found in environment variables")
         
-        self.base_url = base_url or os.getenv("LLM_BASE_URL", "https://openrouter.ai/api/v1")
-        self.model = model or os.getenv("LLM_MODEL", "nvidia/nemotron-3.5-lightning:free")
+        # Initialize OpenAI client (works for both OpenAI and OpenRouter)
+        client_kwargs = {"api_key": self.api_key}
+        if self.base_url:
+            client_kwargs["base_url"] = self.base_url
         
-        self.client = OpenAI(
-            api_key=self.api_key,
-            base_url=self.base_url
-        )
+        self.client = OpenAI(**client_kwargs)
+        
+        # Log configuration (without exposing API key)
+        print(f"[EXTRACTOR] Initialized with provider: {self.provider}, model: {self.model}")
     
     def extract(self, user_input: str, context: Optional[str] = None) -> ExtractedInput:
         """

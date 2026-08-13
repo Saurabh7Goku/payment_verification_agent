@@ -23,6 +23,24 @@ This agent uses a **hybrid architecture** that carefully splits responsibilities
 - Authorization decisions
 - Security policy enforcement
 
+### Multi-Provider LLM Support
+
+The agent supports multiple LLM providers to give users flexibility:
+
+**OpenRouter:**
+- Free tier available for testing and evaluation
+- Access to multiple open-source models
+- Cost-effective for production
+- Ideal for recruiters to test without immediate cost commitment
+
+**OpenAI:**
+- Highest quality extraction with GPT-4o/GPT-4o-mini
+- Best handling of complex natural language variations
+- More reliable JSON formatting
+- Enterprise-ready with official support
+
+Both use the same OpenAI-compatible interface, making provider switching transparent to the application code. Configuration is purely via environment variables.
+
 ### Why Not Pure LLM?
 
 A pure LLM-controlled agent would be inappropriate for this use case because:
