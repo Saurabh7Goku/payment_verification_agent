@@ -1,0 +1,247 @@
+[
+  {
+    "id": "happy_path_full_payment",
+    "name": "Happy Path - Full Payment",
+    "description": "Successful end-to-end flow with full balance payment",
+    "turns": [
+      "Hi",
+      "My account ID is ACC1001",
+      "Nithin Jain",
+      "1990-05-14",
+      "I want to clear the full amount",
+      "Card number is 4532015112830366, CVV is 123, expires 12/2027, name is Nithin Jain"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true,
+    "expected_payment_amount": 1250.75
+  },
+  {
+    "id": "happy_path_partial_payment",
+    "name": "Happy Path - Partial Payment",
+    "description": "Successful end-to-end flow with partial payment",
+    "turns": [
+      "Hello",
+      "ACC1001",
+      "My name is Nithin Jain",
+      "DOB is 1990-05-14",
+      "500 rupees",
+      "4532 0151 1283 0366, one two three, December 2027, Nithin Jain"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true,
+    "expected_payment_amount": 500.00
+  },
+  {
+    "id": "verification_with_aadhaar",
+    "name": "Verification with Aadhaar",
+    "description": "Verify using name and Aadhaar last 4",
+    "turns": [
+      "Hi",
+      "acc1001",
+      "Nithin Jain",
+      "last four of my Aadhaar is 4321",
+      "1000",
+      "Card: 4532015112830366, CVV: 123, Exp: 12/2027, Cardholder: Nithin Jain"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true,
+    "expected_payment_amount": 1000.00
+  },
+  {
+    "id": "verification_with_pincode",
+    "name": "Verification with Pincode",
+    "description": "Verify using name and pincode",
+    "turns": [
+      "Hi there",
+      "Account is ACC1001",
+      "Nithin Jain",
+      "pincode is 400001",
+      "pay 750",
+      "4532015112830366, 123, 12/2027, Nithin Jain"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true,
+    "expected_payment_amount": 750.00
+  },
+  {
+    "id": "account_not_found",
+    "name": "Account Not Found",
+    "description": "Account lookup fails - account doesn't exist",
+    "turns": [
+      "Hi",
+      "ACC9999"
+    ],
+    "expected_outcome": "failed",
+    "should_call_lookup": true,
+    "should_call_payment": false
+  },
+  {
+    "id": "verification_wrong_name",
+    "name": "Verification Failure - Wrong Name",
+    "description": "User provides incorrect name",
+    "turns": [
+      "Hi",
+      "ACC1001",
+      "John Doe",
+      "1990-05-14",
+      "Jane Doe",
+      "1990-05-14",
+      "Wrong Person",
+      "1990-05-14"
+    ],
+    "expected_outcome": "terminated",
+    "should_call_lookup": true,
+    "should_call_payment": false
+  },
+  {
+    "id": "verification_wrong_dob",
+    "name": "Verification Failure - Wrong DOB",
+    "description": "User provides correct name but wrong DOB repeatedly",
+    "turns": [
+      "Hi",
+      "ACC1001",
+      "Nithin Jain",
+      "1995-01-01",
+      "1980-06-15",
+      "2000-12-31"
+    ],
+    "expected_outcome": "terminated",
+    "should_call_lookup": true,
+    "should_call_payment": false
+  },
+  {
+    "id": "verification_retry_success",
+    "name": "Verification Retry - Eventually Successful",
+    "description": "User gets it wrong first time but succeeds on retry",
+    "turns": [
+      "Hi",
+      "ACC1001",
+      "John Smith",
+      "1990-05-14",
+      "Nithin Jain",
+      "1990-05-14",
+      "500",
+      "4532015112830366, 123, 12/2027, Nithin Jain"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true
+  },
+  {
+    "id": "amount_exceeds_balance",
+    "name": "Payment Amount Exceeds Balance",
+    "description": "User tries to pay more than outstanding balance",
+    "turns": [
+      "Hi",
+      "ACC1001",
+      "Nithin Jain",
+      "1990-05-14",
+      "5000",
+      "1000",
+      "4532015112830366, 123, 12/2027, Nithin Jain"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true,
+    "expected_payment_amount": 1000.00
+  },
+  {
+    "id": "zero_balance_account",
+    "name": "Zero Balance Account",
+    "description": "Account with zero balance",
+    "turns": [
+      "Hi",
+      "ACC1003",
+      "Priya Agarwal",
+      "1992-08-10",
+      "100"
+    ],
+    "expected_outcome": "verified_but_no_payment",
+    "should_call_lookup": true,
+    "should_call_payment": false
+  },
+  {
+    "id": "leap_year_dob",
+    "name": "Leap Year Date of Birth",
+    "description": "Account with leap year DOB (Feb 29)",
+    "turns": [
+      "Hi",
+      "ACC1004",
+      "Rahul Mehta",
+      "1988-02-29",
+      "1000",
+      "4532015112830366, 123, 12/2027, Rahul Mehta"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true,
+    "expected_payment_amount": 1000.00
+  },
+  {
+    "id": "out_of_order_info",
+    "name": "Out of Order Information",
+    "description": "User provides multiple pieces of info at once",
+    "turns": [
+      "Hi, my account is ACC1001 and my name is Nithin Jain",
+      "DOB is 1990-05-14",
+      "I want to pay 600",
+      "Card 4532015112830366 CVV 123 expiry 12/2027 cardholder Nithin Jain"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true,
+    "expected_payment_amount": 600.00
+  },
+  {
+    "id": "natural_language_variations",
+    "name": "Natural Language Variations",
+    "description": "User provides information in very natural conversational form",
+    "turns": [
+      "Hey there",
+      "yeah my account number is ACC1001 I think",
+      "it's Nithin, Nithin Jain",
+      "I was born on 14th May 1990",
+      "can I do 500 for now?",
+      "the card number is 4532 0151 1283 0366, CVV is one two three, expires December 2027, name Nithin Jain"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true,
+    "expected_payment_amount": 500.00
+  },
+  {
+    "id": "long_name_account",
+    "name": "Long Name Account",
+    "description": "Account with very long name",
+    "turns": [
+      "Hi",
+      "ACC1002",
+      "you can call me Raja but my full name is Rajarajeswari Balasubramaniam",
+      "1985-11-23",
+      "540",
+      "4532015112830366, 123, 12/2027, Rajarajeswari Balasubramaniam"
+    ],
+    "expected_outcome": "success",
+    "should_call_lookup": true,
+    "should_call_payment": true,
+    "expected_payment_amount": 540.00
+  },
+  {
+    "id": "case_sensitive_name",
+    "name": "Case Sensitive Name Verification",
+    "description": "Name verification should be case-sensitive",
+    "turns": [
+      "Hi",
+      "ACC1001",
+      "nithin jain",
+      "1990-05-14"
+    ],
+    "expected_outcome": "verification_failed",
+    "should_call_lookup": true,
+    "should_call_payment": false
+  }
+]
